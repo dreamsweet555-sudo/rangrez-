@@ -1,0 +1,6 @@
+{
+  "appId": "com.rangrez.photoeditor",
+  "appName": "Rangrez",
+  "webDir": "www",
+  "android": { "allowMixedContent": false }
+}
