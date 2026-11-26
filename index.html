@@ -108,7 +108,7 @@ input[type=range]:not(#cang)::-moz-range-thumb{width:26px;height:26px;border:0;b
 #tpop{position:absolute;left:48px;top:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;box-shadow:0 6px 24px rgba(0,0,0,.45)}
 #tsv,#thue{display:block;width:160px;border-radius:6px;touch-action:none}
 #thex{width:160px;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
-body.txo nav,body.txo #panel{display:none}
+body.txo #panel{display:none}
 #txe{flex:none;height:min(64%,540px);display:flex;flex-direction:column;background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);min-height:0}
 #txe[hidden]{display:none}
 .teT{display:flex;align-items:center;gap:6px;padding:6px 10px;font-size:18px}
@@ -152,7 +152,7 @@ body.txc #tesc,body.txc .tepres,body.txc .tehint{display:none}
 body.txo #teexp{display:grid}
 #teexp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #txe{height:auto;min-height:0;border-top:0}
-body.txo header{display:none}
+
 #txh{order:-1;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
 #txh[hidden]{display:none}
 .tepanel{max-height:min(40dvh,320px);overflow-y:auto;padding:10px 12px;background:var(--surface);border-top:1px solid var(--line)}
@@ -1318,9 +1318,10 @@ function pfPresets(){if(pfPre)return pfPre;const mk=(n,fn)=>{const c=document.cr
     mk('Grid',g=>{g.fillStyle='#0F172A';g.fillRect(0,0,64,64);g.fillStyle='#38BDF8';g.fillRect(0,0,64,4);g.fillRect(0,0,4,64)}),
     mk('Diamonds',g=>{g.fillStyle='#F59E0B';g.fillRect(0,0,64,64);g.fillStyle='#7C2D12';g.beginPath();g.moveTo(32,6);g.lineTo(58,32);g.lineTo(32,58);g.lineTo(6,32);g.closePath();g.fill()}),
     mk('Plus',g=>{g.fillStyle='#ECFDF5';g.fillRect(0,0,64,64);g.fillStyle='#10B981';g.fillRect(26,10,12,44);g.fillRect(10,26,44,12)})];return pfPre}
+var pfCustom=[];function pfAll(){return pfPresets().concat(pfCustom)}
 function pfLive(){return sel&&sel.pf&&ops.includes(sel)?sel:null}
 function pfOk(o){return !!(o&&ops.includes(o)&&!o.pf&&(o.t==='i'||o.t==='c'||o.t==='tx'))}
-function pfMode(){return pfModeU||(pfOk(sel)?'layer':'canvas')}
+function pfMode(){return 'canvas'}
 function pfTarget(){return pfMode()==='layer'?(pfOk(sel)?sel:null):pfLive()}
 function pfDef(){const D=Math.max(24,Math.round(Math.max(cv.width,cv.height)/10));if(!pfDraft)pfDraft={tw:D,th:D,sp:0,fl:100,src:null,pn:''};return pfDraft}
 function pfSnap(p){return Object.assign({},p)}
@@ -1341,7 +1342,7 @@ function pfSetSrc(c,pn){const d=pfDef();
 const pfIn=document.createElement('input');pfIn.type='file';pfIn.accept='image/*';pfIn.hidden=true;document.body.appendChild(pfIn);
 pfIn.onchange=()=>{const f=pfIn.files[0];pfIn.value='';if(!f)return;rdURL(f).then(u=>{const im=new Image();im.onload=()=>{const m=Math.min(1,512/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*m));c.height=Math.max(1,Math.round(im.height*m));c.getContext('2d').drawImage(im,0,0,c.width,c.height);pfSetSrc(c,'photo')};im.onerror=()=>toast('Photo khul nahi paayi');im.src=u}).catch(()=>toast('Photo load nahi ho paayi'))};
 function PFP(el){const mode=pfMode(),t=pfTarget(),key=mode==='layer'?'pt':'pf',live=t&&t[key],p=live||pfDef(),mx=Math.max(Math.round(Math.max(cv.width,cv.height)/2),40),sx=Math.max(Math.round(Math.max(cv.width,cv.height)/10),20);pfLast=sel;gpFootPos();
-  el.innerHTML='<div class="pfm"><button data-m="canvas" class="chip'+(mode==='canvas'?' on':'')+'">Canvas</button><button data-m="layer" class="chip'+(mode==='layer'?' on':'')+'">Shape / Layer</button></div><div class="pfr"></div>'
+  el.innerHTML='<div class="pfr"></div>'
    +(mode==='layer'&&!t?'<p class="hint pfn">Pehle canvas par shape ya layer chunein</p>':'')+'<div class="pfs">'
    +'<label class="s">Tile Width<input type="range" id="pfW" min="8" max="'+mx+'" value="'+Math.round(Math.min(p.tw,mx))+'" data-sfx="px"></label>'
    +'<label class="s">Tile Height<input type="range" id="pfH" min="8" max="'+mx+'" value="'+Math.round(Math.min(p.th,mx))+'" data-sfx="px"></label>'
@@ -1349,9 +1350,8 @@ function PFP(el){const mode=pfMode(),t=pfTarget(),key=mode==='layer'?'pt':'pf',l
    +'<label class="s">Fill Amount<input type="range" id="pfF" min="0" max="100" value="'+Math.round(p.fl)+'" data-sfx="%"></label></div>';
   el.querySelectorAll('.pfm .chip').forEach(b=>b.onclick=()=>{pfModeU=b.dataset.m;PFP(el)});
   const row=el.querySelector('.pfr'),mkb=(h,fn,on)=>{const b=document.createElement('button');b.className='chip'+(on?' on':'');b.innerHTML=h;b.onclick=fn;row.appendChild(b);return b};
-  if(mode==='canvas')mkb('From layer',()=>{const c=pfFromLayer();if(c)pfSetSrc(c,'layer')},p.pn==='layer');
-  mkb('Photo',()=>pfIn.click(),p.pn==='photo');
-  pfPresets().forEach(pr=>{const b=mkb('',()=>pfSetSrc(pr.c,pr.n),live&&p.pn===pr.n),c2=document.createElement('canvas');b.classList.add('th');b.setAttribute('aria-label',pr.n+' pattern');c2.width=c2.height=36;c2.getContext('2d').drawImage(pr.c,0,0,36,36);b.appendChild(c2)});
+  mkb('+ Save',()=>pfSave(),false);
+  pfAll().forEach(pr=>{const b=mkb('',()=>pfNew(pr.c,pr.n),live&&p.pn===pr.n),c2=document.createElement('canvas');b.classList.add('th');b.setAttribute('aria-label',pr.n+' pattern');c2.width=c2.height=36;c2.getContext('2d').drawImage(pr.c,0,0,36,36);b.appendChild(c2)});
   if(mode==='layer'&&t&&t.pt)mkb('None',()=>{const prev=pfSnap(t.pt);t.pt=null;ops.push({t:'pfh',tg:t,k:'pt',prev,next:null});redo.length=0;lySig='';draw();PFP(el)},false);
   const on=row.querySelector('.on');if(on)row.scrollLeft=on.offsetLeft-row.clientWidth/2+on.offsetWidth/2;
   const sl=(id,k)=>{const i=el.querySelector('#'+id);
@@ -1451,12 +1451,12 @@ function erDown(q,e){const T=erTarget();if(!T){toast('Eraser sirf photo, image y
   if(op.k==='bg'){const W=ctx.canvas.width,H=ctx.canvas.height,sp=ctx.getImageData(Math.max(0,Math.min(W-1,Math.round(pt[0]))),Math.max(0,Math.min(H-1,Math.round(pt[1]))),1,1).data;op.sc=sp[3]<8?null:[sp[0],sp[1],sp[2]]}
   redo.length=0;ops.push(op);erCur={op,ctx,snap,T,i:op.p.length};erApply(ctx,op,snap,0);if(T.k==='layer')T.o._ek=erKey(T.o);draw()}
 function erMove(q){const c=erCur;if(!c||c.op.k==='magic')return;c.op.p.push(c.T.k==='layer'?erPt(c.T.o,q):q);erApply(c.ctx,c.op,c.snap,c.i);c.i=c.op.p.length;if(c.T.k==='layer')c.T.o._ek=erKey(c.T.o);draw()}
-const ERT={soft:['Soft','<circle cx="12" cy="12" r="7" stroke-dasharray="2 2.5"/><circle cx="12" cy="12" r="3" style="fill:currentColor"/>'],hard:['Hard','<circle cx="12" cy="12" r="7" style="fill:currentColor;opacity:.85"/>'],magic:['Magic','<path d="M5 19L15 9M16 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1zM19 14l.7 1.3 1.3.7-1.3.7-.7 1.3-.7-1.3-1.3-.7 1.3-.7z"/>'],bg:['BG Eraser','<circle cx="12" cy="8" r="3"/><path d="M6 20c0-4 3-6 6-6s6 2 6 6M4 4l16 16"/>'],restore:['Restore','<path d="M9 7L5 11l4 4M5 11h9a5 5 0 010 10h-3"/>']};
+const ERT={soft:['Soft','<circle cx="12" cy="12" r="7" stroke-dasharray="2 2.5"/><circle cx="12" cy="12" r="3" style="fill:currentColor"/>'],hard:['Hard','<circle cx="12" cy="12" r="7" style="fill:currentColor;opacity:.85"/>'],magic:['Magic','<path d="M5 19L15 9M16 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1zM19 14l.7 1.3 1.3.7-1.3.7-.7 1.3-.7-1.3-1.3-.7 1.3-.7z"/>'],bg:['BG Eraser','<circle cx="12" cy="8" r="3"/><path d="M6 20c0-4 3-6 6-6s6 2 6 6M4 4l16 16"/>'],restore:['Restore','<path d="M9 7L5 11l4 4M5 11h9a5 5 0 010 10h-3"/>'],inv:['Invert','<circle cx="12" cy="12" r="7"/><path d="M12 5a7 7 0 010 14z" style="fill:currentColor"/>']};
 function ERP(el){const k=ERS.k,row=(id,lb,mn,mx,v,sfx)=>`<label class="s">${lb}<input type="range" id="${id}" min="${mn}" max="${mx}" value="${v}" data-sfx="${sfx}"></label>`,hint=t=>`<p class="hint" style="margin:6px 0">${t}</p>`;
   const sz=row('ers','Size',5,400,ERS.size,'px'),hd=row('erh','Hardness',0,100,ERS.hd,'%'),tl=row('ert','Tolerance',1,100,ERS.tol,'%'),opr=row('ero','Opacity',1,100,ERS.ao,'%');
   const body={soft:sz+hd+opr,hard:sz+opr+hint('Hard edge: saaf kinare se mitayein.'),magic:tl+hint('Photo par tap karein, milte-julte rang hat jaayenge.'),bg:sz+tl,restore:sz+hd+opr}[k];
   el.innerHTML=`<div class="dpt"><div class="ert">${Object.keys(ERT).map(q=>`<button data-k="${q}"${q===k?' class="on"':''}><svg viewBox="0 0 24 24">${ERT[q][1]}</svg>${ERT[q][0]}</button>`).join('')}</div><button id="erx" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="erb">${body}</div>`;
-  el.querySelectorAll('.ert [data-k]').forEach(b=>b.onclick=()=>{ERS.k=b.dataset.k;panel()});
+  el.querySelectorAll('.ert [data-k]').forEach(b=>b.onclick=()=>{if(b.dataset.k==='inv'){erInvert();return}ERS.k=b.dataset.k;panel()});
   const bind=(id,f)=>{const i=$('#'+id);if(i)i.oninput=e=>{ERS[f]=+e.target.value;erPrev()}};bind('ers','size');bind('erh','hd');bind('ert','tol');bind('ero','ao');
   $('#erx').onclick=()=>goTab('none')}
 function lyTrans(o){const s=o._pc||o.img;if(s._tr!==undefined)return s._tr;let r=false;try{const c=document.createElement('canvas');c.width=c.height=48;const x=c.getContext('2d');x.drawImage(s,0,0,48,48);const d=x.getImageData(0,0,48,48).data;for(let i=3;i<d.length;i+=4)if(d[i]<250){r=true;break}}catch(e){}s._tr=r;return r}
@@ -2117,9 +2117,9 @@ function LS(el){if(!sel||!ops.includes(sel)){el.innerHTML='<p class="hint">Pehle
       draw();placeLF()});
     return}
   const M={lsz:['Size',10,300,Math.round(sel.w/sel.w0*100)],lrt:['Rotate',-180,180,Math.round(sel.r*180/Math.PI)],lop:['Opacity',5,100,Math.round(sel.a*100)]}[tool];
-  el.innerHTML=`<label class="s">${M[0]}<input type="range" id="lsl" min="${M[1]}" max="${M[2]}" value="${M[3]}"></label><div class="row"><button class="chip" id="ldel2">Delete layer</button></div>`;
+  el.innerHTML=`<label class="s">${M[0]}<input type="range" id="lsl" min="${M[1]}" max="${M[2]}" value="${M[3]}"></label>${tool==='lop'?'':'<div class="row"><button class="chip" id="ldel2">Delete layer</button></div>'}`;
   $('#lsl').oninput=e=>{const v=+e.target.value,A=anchorPos(sel);if(tool==='lsz'){const s=v/100;if(sel.t==='tx'){const k0=sel.w0*s/sel.bw;sel.bw*=k0;sel.bh*=k0;sel.fmax*=k0;txMeasure(sel)}else{sel.w=sel.w0*s;sel.h=sel.h0*s}}else if(tool==='lrt')sel.r=v*Math.PI/180;else sel.a=v/100;keepAnchor(sel,A);draw()};
-  $('#ldel2').onclick=delSel}
+  {const d=$('#ldel2');if(d)d.onclick=delSel}}
 let shTab='adjust';
 function LSH(el){const o=sel;if(!o||!ops.includes(o)||(o.t!=='tx'&&o.t!=='c')){el.innerHTML='<p class="hint">Pehle canvas par text ya color layer tap karke chunein.</p>';return}
   const s=o.sh||(o.sh={on:false,c:'#000000',b:20,x:0,y:8,o:70});
@@ -2223,7 +2223,7 @@ function mkS(){const S=document.createElement('canvas'),lay=cs.tg==='layer'&&sel
   const lk=!!lay.id&&ops.some(q=>(q.t==='s'&&q.lyid===lay.id)||(q.t==='e'&&q.tg===lay.id));
   if(lay.t==='i'&&!lk&&!(lay.rad&&lay.rad.some(v=>v!==0)))x.drawImage(lay._pc||lay.img,0,0,S.width,S.height);else{x.save();x.translate(S.width/2,S.height/2);drawLayer(x,{...lay,x:0,y:0,r:0,a:1,hidden:false,bm:'normal',sh:null,bo:null,bi:null,_bd:null},S.width/lay.w);x.restore()}
   return S}
-function ctg(){if(!(sel&&ops.includes(sel)))return'';
+function ctg(){return'';
   return '<div class="row" style="padding:2px 10px 4px"><button class="chip '+(cs.tg==='canvas'?'on':'')+'" data-ctg="canvas">Canvas</button><button class="chip '+(cs.tg==='layer'?'on':'')+'" data-ctg="layer">Selected layer</button></div>'}
 function lyBaked(o){/* strokes / erase of this layer are now baked into its new image: drop them so they are not drawn twice */
   if(o.id){for(let j=ops.length-1;j>=0;j--){const q=ops[j];if((q.t==='s'&&q.lyid===o.id)||(q.t==='e'&&q.tg===o.id))ops.splice(j,1)}}o._ec=null;o._ek=null;o._bd=null}
@@ -2493,15 +2493,156 @@ if(k==='thin')ring(m*.03,m*.03,m*.03,m*.03);else if(k==='wide')ring(m*.08,m*.08,
 function frames(){let k='thin',col='#FFFFFF';open('Frame','<div class="r" id="fk"><button class="c on" data-v="thin">Thin</button><button class="c" data-v="wide">Wide</button><button class="c" data-v="polaroid">Polaroid</button><button class="c" data-v="round">Rounded</button><button class="c" data-v="double">Double</button><button class="c" data-v="vig">Vignette</button></div><div class="r" id="fc"><button class="c on" data-v="#FFFFFF">White</button><button class="c" data-v="#111111">Black</button><button class="c" data-v="#F5EBD7">Cream</button><button class="c" data-v="#D4A93A">Gold</button></div><button class="c on" id="fadd2" style="width:100%">Add frame</button>',el=>{chips(el,'#fk',v=>k=v);chips(el,'#fc',v=>col=v);Q('#fadd2').onclick=()=>{if(ok())put(frame(k,col),true)}})}
 /* RETOUCH */
 function retouch(){let k='smooth';open('Retouch','<div class="r" id="rk"><button class="c on" data-v="smooth">Smooth Skin</button><button class="c" data-v="glow">Soft Glow</button><button class="c" data-v="bright">Brighten</button></div><label>Strength<input type="range" id="rs" min="10" max="100" value="55"></label><button class="c on" id="radd" style="width:100%">Apply</button><p style="font-size:12px;opacity:.7">Ye ek nayi layer banata hai, Layers se opacity ya delete kar sakte hain.</p>',el=>{chips(el,'#rk',v=>k=v);Q('#radd').onclick=()=>{if(!ok())return;const W=cv.width,H=cv.height,[c,x]=mk(W,H),s=+Q('#rs').value/100,m=Math.max(W,H);if(k==='bright'){x.fillStyle='#808080';x.fillRect(0,0,W,H);put(c,true,{bm:'screen',a:s*.6});return}x.filter='blur('+(k==='smooth'?m/180:m/60)+'px)';x.drawImage(cv,0,0);put(c,true,k==='glow'?{bm:'screen',a:s*.7}:{a:s})}})}
-const MAP={'Sticker':sticker,'Lens Flare':flare,'Callout':callout,'Frame':frames,'Retouch':retouch};
+const MAP={'Sticker':sticker,'Lens Flare':flare,'Callout':callout,'Frame':frames,'Retouch':()=>window.rtOpen()};
 Q('#tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const lb=b.textContent.replace('PRO','').trim(),f=(!b.dataset.t&&!b.dataset.a)?MAP[lb]:null;if(!f){close();return}e.stopPropagation();e.preventDefault();if(xs.style.display==='block'&&cur===lb){close();return}if(tool!=='none')goTab('none');f();cur=lb},true);
 document.addEventListener('pointerdown',e=>{if(xs.style.display==='block'&&!xs.contains(e.target)&&!e.target.closest('#tabs'))close()},true);
-Q('#stage').addEventListener('pointerdown',e=>{if(e.target===e.currentTarget&&tool!=='none'&&tool!=='text')goTab('none')});
+/* Tool khula ho to bahar tap se layer deselect na ho (sirf tool band ho sakta hai); tool band hone ke baad bahar tap se deselect ho */
+Q('#stage').addEventListener('pointerdown',e=>{if(e.target!==e.currentTarget||tool==='none')return;if(tool==='eraser'&&src){erDown(pos(e),e);e.stopImmediatePropagation();return}if(!['text','eraser','draw','brushes','clone'].includes(tool))goTab('none');e.stopImmediatePropagation()},true);
 
 /* Effects + Draw panels: chhote aur floating/compact */
 (function(){const s=document.createElement('style');s.textContent='#panel.efl{position:fixed;left:8px;right:8px;z-index:9;min-height:0;max-height:none;overflow:visible;padding:8px 10px;border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.45)}#panel.efl .chip{padding:6px 12px;font-size:13px}#panel.efl .row{padding-bottom:0}#panel.drw{padding:4px 10px;max-height:34vh;overflow-y:auto}#panel.drw .dpt{gap:4px}#panel.drw .dpm,#panel.drw .dpseg{padding:2px;border-radius:12px}#panel.drw .dpm button,#panel.drw .dpseg button{padding:4px 3px;font-size:11px;gap:3px}#panel.drw .dpm svg,#panel.drw .dpseg svg{width:14px;height:14px}#panel.drw .dpt>button{width:26px;height:26px}#panel.drw .dpf{margin:3px 0 1px;gap:6px}#panel.drw .dpwheel{width:30px!important;height:30px!important}#panel.drw label.s{font-size:12px;margin:0}#panel.drw .dpb{margin-top:2px;padding-top:2px}#panel.drw .dpb button{padding:3px 2px;font-size:12px}#panel.drw .dpb svg{width:15px;height:15px}';document.head.appendChild(s);
 const orig=window.panel;if(typeof orig!=='function')return;
-window.panel=function(){const el=Q('#panel'),wf=el.classList.contains('efl'),wd=el.classList.contains('drw'),rw=el.querySelector('.row'),sl=rw?rw.scrollLeft:0;const r=orig.apply(this,arguments);const f=tool==='filters',d=tool==='draw';el.classList.toggle('efl',f);el.classList.toggle('drw',d);if(f){const n=document.querySelector('nav');if(n)el.style.bottom=(innerHeight-n.getBoundingClientRect().top+8)+'px';if(sl){const r2=el.querySelector('.row');if(r2)r2.scrollLeft=sl}}if(f!==wf||d!==wd)window.dispatchEvent(new Event('resize'));return r}})();
+window.panel=function(){const el=Q('#panel'),wf=el.classList.contains('efl'),wd=el.classList.contains('drw'),rw=el.querySelector('.row'),sl=rw?rw.scrollLeft:0;const r=orig.apply(this,arguments);const f=tool==='filters',d=tool==='draw';{const stg=Q('#stage');if(stg)stg.style.touchAction=(tool==='eraser')?'none':''}el.classList.toggle('efl',f);el.classList.toggle('drw',d);if(f){const n=document.querySelector('nav');if(n)el.style.bottom=(innerHeight-n.getBoundingClientRect().top+8)+'px';if(sl){const r2=el.querySelector('.row');if(r2)r2.scrollLeft=sl}}if(f!==wf||d!==wd)window.dispatchEvent(new Event('resize'));return r}})();
+
+/* CROP / PERSPECTIVE screen: poora section drag se hilna band */
+(function(){const s=document.createElement('style');s.textContent='#crop,#psp{overscroll-behavior:none;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}#crop .ctop,#crop #cstage,#crop #cwrap,#crop #cc,#crop .ctabs,#psp .ctop,#psp #pspst,#psp #pspw,#psp #pspc{touch-action:none;-webkit-user-drag:none}';document.head.appendChild(s);
+['#crop','#psp'].forEach(id=>{const el=Q(id);if(!el)return;el.addEventListener('touchmove',e=>{if(!e.target.closest('input,select,textarea,.crow,.row,.pfr,#cdim,#cf,.rul,#pspb'))e.preventDefault()},{passive:false});el.addEventListener('contextmenu',e=>e.preventDefault());el.addEventListener('dragstart',e=>e.preventDefault())})})();
+
+/* CROP: panel (ruler + ratios) ke baad frame ko stage ke hisaab se dobara fit karo, taaki ruler crop box ke upar na aaye */
+(function(){const st=Q('#cstage'),cr=Q('#crop');if(!st||!cr||!window.ResizeObserver)return;let lw=0,lh=0;new ResizeObserver(()=>{const r=st.getBoundingClientRect();if(Math.abs(r.width-lw)<2&&Math.abs(r.height-lh)<2)return;lw=r.width;lh=r.height;if(cr.style.display==='flex'&&cs&&cs.S){try{buildW()}catch(e){}}}).observe(st)})();
+
+/* CROP options panel: chhota */
+(function(){const s=document.createElement('style');s.textContent='#crop .row .chip{padding:5px 12px;font-size:13px}#crop .rul{height:38px;margin-bottom:2px}#crop .rul span{top:0;font-size:11px}#crop .rul::before{top:15px;height:16px}#crop .rul input{top:6px;height:30px}#crop .rul input::-webkit-slider-runnable-track{height:30px}#crop .rul input::-webkit-slider-thumb{height:30px}#crop .crow{gap:4px;padding:2px 8px 4px}#crop .crow button{flex:1 0 54px;gap:3px;padding:4px 2px;font-size:11px;border-radius:8px}#crop .crow i{zoom:.65}#crop .ctabs{padding:2px 8px 6px;gap:4px}#crop .ctabs button{padding:8px 0;font-size:13px}';document.head.appendChild(s)})();
+
+/* UI hilna/scrollbar band: bade layer ke handles screen se bahar nikalne par poora UI scroll ho jata tha */
+(function(){const s=document.createElement('style');s.textContent='html{overflow:hidden!important;overscroll-behavior:none}body{position:relative;overflow:hidden!important}';document.head.appendChild(s);
+const rs=()=>{const b=document.body,h=document.documentElement;if(b.scrollTop||b.scrollLeft){b.scrollTop=0;b.scrollLeft=0}if(h.scrollTop||h.scrollLeft){h.scrollTop=0;h.scrollLeft=0}if(window.scrollX||window.scrollY)window.scrollTo(0,0)};
+window.addEventListener('scroll',e=>{const t=e.target;if(t===document||t===document.body||t===document.documentElement)rs()},true);
+const _p=window.placeLF;if(typeof _p==='function')window.placeLF=function(){const r=_p.apply(this,arguments);rs();return r}})();
+
+/* TEXT tool: Text Editor header hata diya; neeche sirf Font/Spacing/Alignment/Shape/Effects ki line (footer ke upar) */
+(function(){const s=document.createElement('style');s.textContent='#txh,#teexp,#tehint2{display:none!important}body.txo nav{order:3}#txe{order:2;position:relative;padding-bottom:0}#tepanel{position:absolute;left:8px;right:8px;bottom:calc(100% + 6px);max-height:min(36dvh,300px);border:1px solid var(--line);border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.45)}.tebar{overflow:hidden;justify-content:space-around;padding:6px 4px}.tb{flex:1 1 0;width:auto;min-width:0;margin:0;border:0;padding:8px 2px}.tb[data-k=tr],.tb[data-k=layers],.tb[data-k=more]{display:none}.tb[data-k=font]{order:1}.tb[data-k=sp]{order:2}.tb[data-k=al]{order:3}.tb[data-k=shape]{order:4}.tb[data-k=ef]{order:5}.tb.on{border:0;color:var(--accent)}';document.head.appendChild(s)})();
+
+/* PATTERN: '+ Save' (selected layer/canvas ko pattern bana kar list mein jodta hai) + saved patterns yaad rakhna */
+(function(){const K='rg_pats';let cnt=0;
+const persist=()=>{try{localStorage.setItem(K,JSON.stringify(pfCustom.map(x=>({n:x.n,u:x.c.toDataURL('image/png')}))))}catch(e){}};
+window.pfSave=function(){let c=null;const o=(sel&&ops.includes(sel))?sel:null;
+if(o&&(o.t==='i'||o.t==='c'||o.t==='tx')){c=pfFromLayer()}
+else if(src){const m=Math.min(1,512/Math.max(cv.width,cv.height));c=document.createElement('canvas');c.width=Math.max(1,Math.round(cv.width*m));c.height=Math.max(1,Math.round(cv.height*m));c.getContext('2d').drawImage(cv,0,0,c.width,c.height)}
+if(!c){toast('Pehle canvas par design banayein');return}
+cnt++;pfCustom.push({n:'My'+Date.now()+'_'+cnt,c});persist();toast('Pattern list mein add ho gaya');PFP(Q('#panel'))};
+try{const L=JSON.parse(localStorage.getItem(K)||'[]');Promise.all(L.map(it=>new Promise(r=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;c.getContext('2d').drawImage(im,0,0);r({n:it.n,c})};im.onerror=()=>r(null);im.src=it.u}))).then(a=>{a.filter(Boolean).forEach(x=>pfCustom.push(x));if(tool==='pattern')PFP(Q('#panel'))})}catch(e){}})();
+
+/* ERASER: colour layer aur pattern layer par bhi chale. Pehli baar mitane par layer apne wahi look ki image layer ban jati hai (border, size, position wahi), phir normal eraser chalta hai */
+(function(){const od=window.erDown;if(typeof od!=='function')return;
+window.erBakeSel=function(){const o=(sel&&ops.includes(sel))?sel:null;
+if(o&&!o.hidden&&((o.t==='c'&&o.shp===undefined)||(o.t==='i'&&o.pf))){
+try{const f=Math.min(1,4096/Math.max(o.w,o.h)),W=Math.max(1,Math.round(o.w*f)),H=Math.max(1,Math.round(o.h*f)),c=document.createElement('canvas');c.width=W;c.height=H;
+const t=Object.assign({},o,{x:o.w/2,y:o.h/2,r:0,a:1,fh:false,fv:false,sh:null,bi:null,bo:null,bm:'normal',_ec:null,_bd:null});
+drawLayer0(c.getContext('2d'),t,f);
+if(!o.id)o.id=++LID;
+const n={t:'i',img:c,x:o.x,y:o.y,w:o.w,h:o.h,r:o.r,a:o.a,fh:o.fh,fv:o.fv,bm:o.bm,sh:o.sh,bi:o.bi,bo:o.bo,id:o.id,locked:o.locked,w0:o.w0,h0:o.h0};
+lyBaked(o);ops[ops.indexOf(o)]=n;sel=n;draw()}catch(x){}}};
+window.erDown=function(q,e){window.erBakeSel();return od.apply(this,arguments)}})();
+
+/* ERASER Invert: poora mask ulat jata hai (mita hua dikhta hai, dikhta hua mit jata hai). Dobara dabane par original mask wapas. Undo/Redo existing eraser history se chalta hai */
+(function(){const ea=window.erApply;if(typeof ea!=='function')return;let _li=0;
+window.erApply=function(c,op,snap,i0){
+if(op&&op.k==='inv'){const W=c.canvas.width,H=c.canvas.height,SH=Math.max(1,Math.min(H,Math.floor(4000000/W))),st=document.createElement('canvas');st.width=W;const sg=st.getContext('2d',{willReadFrequently:true});
+for(let y=0;y<H;y+=SH){const h=Math.min(SH,H-y);st.height=h;sg.clearRect(0,0,W,h);sg.drawImage(snap,0,y,W,h,0,0,W,h);
+const sd=sg.getImageData(0,0,W,h),cd=c.getImageData(0,y,W,h),a=sd.data,b=cd.data;
+for(let i=0;i<a.length;i+=4){const na=a[i+3]-b[i+3];b[i]=a[i];b[i+1]=a[i+1];b[i+2]=a[i+2];b[i+3]=na>0?na:0}
+c.putImageData(cd,0,y)}return}
+return ea.apply(this,arguments)};
+window.erInvert=function(){const nw=Date.now();if(nw-_li<150)return;_li=nw;
+window.erBakeSel();
+const T=erTarget();if(!T){toast('Invert sirf photo, image, pattern ya shape layer par chalta hai');return}
+let ctx,snap,tg='base';
+if(T.k==='base'){ctx=pcx;if(!eSnapB)eSnapB=erCopy(pc);snap=eSnapB}
+else{const l=T.o;if(l.hidden){toast('Layer hidden hai');return}if(!l.id)l.id=++LID;if(l.shp!==undefined&&!l._sm)erShpSm(l);if(!l._ec||l._ek!==erKey(l))erBuild(l);ctx=l._ec.getContext('2d');snap=l._pc||l.img||l._sm;tg=l.id}
+const op={t:'e',k:'inv',tg,p:[[0,0]],r:1,hd:100,ao:100,tol:0,id:++EID};
+redo.length=0;ops.push(op);window.erApply(ctx,op,snap,0);if(T.k==='layer')T.o._ek=erKey(T.o);draw()}})();
+
+/* RETOUCH mode: upar ka bar (X, undo, redo, info, download, ok) + neeche horizontal tools line */
+(function(){
+const st=document.createElement('style');
+st.textContent='#rt{position:fixed;inset:0;z-index:99990;background:#000;display:none;flex-direction:column;color:#fff;-webkit-user-select:none;user-select:none}#rt.on{display:flex}#rt .rtb{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;background:#1E1E1E}#rt .rtb button{width:44px;height:44px;display:grid;place-items:center;background:none;border:0;color:#fff;border-radius:12px}#rt .rtb button:disabled{opacity:.35}#rt svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#rt .rtstg{flex:1;min-height:0;position:relative;touch-action:none}#rt canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;touch-action:none}#rt .rtbt{background:#141414;padding-bottom:env(safe-area-inset-bottom,0px)}#rt .rtopc{display:none;padding:8px 14px 2px}#rt .rtopc.on{display:block}#rt .rtopc label{display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:center;font-size:13px;margin:4px 0}#rt .rtclc{display:flex;gap:10px;margin:6px 0}#rt .rtclc i{width:26px;height:26px;border-radius:50%;border:2px solid transparent;display:block}#rt .rtclc i.on{border-color:#fff}#rt .rttlc{display:flex;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}#rt .rttlc::-webkit-scrollbar{display:none}#rt .rttlc button{flex:0 0 25%;min-width:84px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px 10px;background:none;border:0;color:#fff;font:inherit;font-size:12px}#rt .rttlc button.on{color:var(--accent,#9b7bff)}';
+document.head.appendChild(st);
+const I=d=>'<svg viewBox="0 0 24 24">'+d+'</svg>';
+const ICO={x:I('<path d="M5 5l14 14M19 5L5 19"/>'),un:I('<path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 010 12" transform="translate(0 -6)"/>'),re:I('<path d="M15 7l5 5-5 5"/><path d="M20 12H10a6 6 0 000 12" transform="translate(0 -6)"/>'),inf:I('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>'),dl:I('<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>'),ok:I('<path d="M4 12l6 6L20 6"/>')};
+const TOOLS=[
+['auto','Auto',I('<path d="M4 20l9-9"/><path d="M14 5l1-3 1 3 3 1-3 1-1 3-1-3-3-1z"/>'),'Ek tap mein poori photo ki roshni aur rang apne aap theek hota hai. Strength slider se kam-zyada karo.','a'],
+['face','Face',I('<circle cx="12" cy="12" r="9"/><path d="M8 14q4 4 8 0M9 10h.01M15 10h.01"/>'),'Chehre par brush chalao, skin naram aur halki roshan hoti hai.'],
+['hd','HD Portrait',I('<circle cx="9" cy="7.5" r="3.5"/><path d="M3 20c0-4 3-6 6-6M14 16h6M14 20h6M14 16v4M20 16v4M14 18h6"/>'),'Ek tap mein detail aur sharpness badhti hai. Strength slider se kam-zyada karo.','a'],
+['smo','Smooth',I('<path d="M12 3c3 4 6 7 6 10a6 6 0 01-12 0c0-3 3-6 6-10z"/>'),'Ek tap mein poori photo ki skin saaf hoti hai (kinare bache rehte hain). Strength slider se kam-zyada karo.','a'],
+['eye','Eye Bag',I('<path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),'Aankhon ke neeche brush chalao, kaale ghere halke hote hain.'],
+['hair','Hair Color',I('<path d="M12 3c-5 0-8 4-8 9 0 3 1 5 3 6l-1 3h12l-1-3c2-1 3-3 3-6 0-5-3-9-8-9z"/><path d="M9 21v-4c0-2 1-3 3-3s3 1 3 3v4"/>'),'Baalon ka colour badalne ke liye colour chuno aur baalon par brush chalao. (Hairstyle badalna AI/online feature hai, abhi isme nahi.)'],
+['det','Detail',I('<path d="M6 4h12l4 6-10 11L2 10zM2 10h20M9 4l-2 6 5 11M15 4l2 6-5 11"/>'),'Jis hisse ko saaf aur dhaardaar (sharp) karna ho, wahan brush chalao.'],
+['eyec','Eye Color',I('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/>'),'Colour chuno aur aankh ki putli (iris) par chhota brush chalao.'],
+['wh','Teeth Whiten',I('<path d="M7 4c-3 0-4 3-3 6 1 4 1 10 3 10 2 0 2-5 5-5s3 5 5 5c2 0 2-6 3-10 1-3 0-6-3-6-2 0-3 1-5 1S9 4 7 4z"/>'),'Daanton par brush chalao, peelapan kam hota hai aur safedi badhti hai.'],
+['rs','Reshape',I('<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M4 12h16M12 4v16M8 4c-1 5-1 11 0 16M16 4c1 5 1 11 0 16"/>'),'Photo ke jis hisse ko dabana/phulana/khinchna ho, use ungli se dhakelo.'],
+['blur','Soft Blur',I('<path d="M15 4l5 5-9 9-5-5zM6 13l-3 7 7-3"/>'),'Brush se jis jagah ko naram (soft) karna ho, wahan chalao.'],
+['mk','Makeup',I('<path d="M13 8l4 4-7 7-4-4zM4 8c2 0 3-1 3-3 0 2 1 3 3 3-2 0-3 1-3 3 0-2-1-3-3-3z"/>'),'Colour chuno aur brush se lagao (lips, blush wagairah).'],
+['blem','Blemish',I('<rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(-35 12 12)"/><path d="M10.5 10.5l3 3"/>'),'Daag/dhabbe par tap ya chalao, aas-paas ki saaf jagah se bhar jata hai.'],
+['skin','Skin Tone',I('<path d="M5 17l8-8 4 4-8 8H5zM13 9l3-3 3 3-3 3M5 21h4"/>'),'Rang ko barabar aur saaf karne ke liye brush chalao.'],
+['wrk','Wrinkles',I('<circle cx="12" cy="12" r="9"/><path d="M7.5 9.5q1.5-1.5 3 0M13.5 9.5q1.5-1.5 3 0M7.5 14q4.5 4 9 0"/>'),'Jhurriyon/rekhaon par halka smoothing brush.']];
+const DSZ={eyec:16,wh:22,det:28,rs:70};
+const COL=['#E8567A','#C21E3A','#F4A58A','#8B4A3A','#8E4585'],HCOL=['#1B1B1B','#4A2C1A','#7A1F2B','#D9B36B','#2A56C6','#D94F9C'],ECOL=['#3B6FD1','#2E8B57','#6B4226','#8A9AA5','#B8862F','#8E4585'];
+let root,wc,wx,hist=[],redo=[],tool=null,size=44,str=60,col=COL[0],B=null,last=null,busy=false,sc=1;
+const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
+function build(){root=document.createElement('div');root.id='rt';
+root.innerHTML='<div class="rtb"><button id="rtx">'+ICO.x+'</button><button id="rtu">'+ICO.un+'</button><button id="rtr">'+ICO.re+'</button><button id="rti">'+ICO.inf+'</button><button id="rtd">'+ICO.dl+'</button><button id="rto">'+ICO.ok+'</button></div><div class="rtstg" id="rts"></div><div class="rtbt"><div class="rtopc" id="rtop"><label>Size<input type="range" id="rtsz" min="10" max="160" value="44"></label><label>Strength<input type="range" id="rtst" min="10" max="100" value="60"></label><div class="rtclc" id="rtcl" style="display:none">'+COL.map((c,i)=>'<i data-c="'+c+'" style="background:'+c+'"'+(i?'':' class="on"')+'></i>').join('')+'</div></div><div class="rttlc" id="rttl">'+TOOLS.map(t=>'<button data-k="'+t[0]+'">'+t[2]+'<span>'+t[1]+'</span></button>').join('')+'</div></div>';
+document.body.appendChild(root);
+const Q2=s=>root.querySelector(s);
+Q2('#rtx').onclick=()=>close(false);Q2('#rto').onclick=()=>close(true);Q2('#rtu').onclick=undo;Q2('#rtr').onclick=redoF;
+Q2('#rti').onclick=()=>{const t=TOOLS.find(x=>x[0]===tool);toast(t?t[3]:'Neeche se koi tool chuno aur photo par ungli chalao.')};
+Q2('#rtd').onclick=save;
+Q2('#rtsz').oninput=e=>{size=+e.target.value};Q2('#rtst').oninput=e=>{str=+e.target.value};
+Q2('#rtcl').onclick=e=>{const i=e.target.closest('i');if(!i)return;col=i.dataset.c;Q2('#rtcl').querySelectorAll('i').forEach(z=>z.classList.toggle('on',z===i))};
+Q2('#rttl').onclick=e=>{const b=e.target.closest('button');if(!b)return;const T0=TOOLS.find(x=>x[0]===b.dataset.k);if(T0&&T0[4]==='a'){tool=null;Q2('#rttl').querySelectorAll('button').forEach(z=>z.classList.remove('on'));Q2('#rtop').classList.add('on');Q2('#rtsz').parentNode.style.display='none';Q2('#rtcl').style.display='none';act(T0[0]);return}Q2('#rtsz').parentNode.style.display='grid';tool=b.dataset.k;if(DSZ[tool]){size=DSZ[tool];Q2('#rtsz').value=size}Q2('#rttl').querySelectorAll('button').forEach(z=>z.classList.toggle('on',z===b));Q2('#rtop').classList.add('on');pal()};
+wc=document.createElement('canvas');Q2('#rts').appendChild(wc);
+wc.addEventListener('pointerdown',pd);wc.addEventListener('pointermove',pm);wc.addEventListener('pointerup',pu);wc.addEventListener('pointercancel',pu);
+}
+function pal(){const L=tool==='mk'?COL:tool==='hair'?HCOL:tool==='eyec'?ECOL:null,el=root.querySelector('#rtcl');if(!L){el.style.display='none';return}col=L[0];el.innerHTML=L.map((c,i)=>'<i data-c="'+c+'" style="background:'+c+'"'+(i?'':' class="on"')+'></i>').join('');el.style.display='flex'}
+function btns(){root.querySelector('#rtu').disabled=!hist.length;root.querySelector('#rtr').disabled=!redo.length}
+function snap(){const c=mk(wc.width,wc.height);c.getContext('2d').drawImage(wc,0,0);return c}
+function put(c){wx.globalCompositeOperation='source-over';wx.globalAlpha=1;wx.clearRect(0,0,wc.width,wc.height);wx.drawImage(c,0,0)}
+function undo(){if(!hist.length)return;redo.push(snap());put(hist.pop());btns()}
+function redoF(){if(!redo.length)return;hist.push(snap());put(redo.pop());btns()}
+function pos(e){const r=wc.getBoundingClientRect(),s=Math.min(r.width/wc.width,r.height/wc.height),ox=(r.width-wc.width*s)/2,oy=(r.height-wc.height*s)/2;return[(e.clientX-r.left-ox)/s,(e.clientY-r.top-oy)/s,s]}
+function pd(e){if(!tool||busy)return;e.preventDefault();wc.setPointerCapture(e.pointerId);hist.push(snap());if(hist.length>6)hist.shift();redo=[];btns();
+const m=Math.max(wc.width,wc.height),rad=tool==='face'?size*.2:tool==='eye'?size*.3:tool==='blur'?size*.22:tool==='wrk'?size*.1:tool==='skin'?size*.6:tool==='blem'?size*.15:0;
+rsP=null;B=null;if(tool==='det')B=sharpC();if(rad>0){B=mk(wc.width,wc.height);const g=B.getContext('2d');g.filter='blur('+Math.max(1,rad*sc0())+'px)';g.drawImage(wc,0,0)}
+const p=pos(e);last=[p[0],p[1]];dab(p[0],p[1])}
+function sc0(){return 1}
+let rsP=null;
+function smudge(px,py,x,y){const r=size/2,x0=Math.max(0,Math.floor(px-r)),y0=Math.max(0,Math.floor(py-r)),x1=Math.min(wc.width,Math.ceil(px+r)),y1=Math.min(wc.height,Math.ceil(py+r)),w=x1-x0,h=y1-y0;if(w<=0||h<=0)return;const t=mk(w,h),g=t.getContext('2d');g.drawImage(wc,x0,y0,w,h,0,0,w,h);g.globalCompositeOperation='destination-in';const gr=g.createRadialGradient(px-x0,py-y0,r*.2,px-x0,py-y0,r);const a=Math.min(1,.25+.75*str/100);gr.addColorStop(0,'rgba(0,0,0,'+a+')');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,w,h);wx.globalCompositeOperation='source-over';wx.drawImage(t,x0+(x-px),y0+(y-py))}
+function sharpC(){const w=wc.width,h=wc.height,o=wx.getImageData(0,0,w,h),a=o.data,bl=blurData(1.6);for(let i=0;i<a.length;i+=4)for(let j=0;j<3;j++)a[i+j]+=(a[i+j]-bl[i+j])*1.6;const c=mk(w,h);c.getContext('2d').putImageData(o,0,0);return c}
+function pm(e){if(!last)return;e.preventDefault();const p=pos(e),dx=p[0]-last[0],dy=p[1]-last[1],d=Math.hypot(dx,dy),stp=Math.max(2,size*.18);if(d<stp)return;const n=Math.floor(d/stp);for(let i=1;i<=n;i++)dab(last[0]+dx*i/n,last[1]+dy*i/n);last=[last[0]+dx*n/n,last[1]+dy*n/n]}
+function pu(){last=null;B=null;rsP=null}
+const FAC={eyec:.75,det:.6,rs:.9,hair:.5,face:.55,eye:.6,blur:.5,wrk:.6,skin:.3,blem:.85,mk:.2,wh:.16};
+function dab(x,y){if(tool==='rs'){if(rsP)smudge(rsP[0],rsP[1],x,y);rsP=[x,y]}else if(tool==='eyec'){dab0(x,y,'hc');dab0(x,y,'hc2',.15)}else if(tool==='wh'){dab0(x,y,'wh');dab0(x,y,'ds',.35,'#808080')}else if(tool==='hair'){dab0(x,y,'hc');dab0(x,y,'hc2',.2)}else if(tool==='face'){dab0(x,y,'blur');dab0(x,y,'lt',.07,'#ffe6d2')}else if(tool==='eye'){dab0(x,y,'blur');dab0(x,y,'lt',.12,'#fff0e0')}else dab0(x,y)}
+function dab0(x,y,mode,fo,fc){const T=mode||tool,r=size/2,x0=Math.max(0,Math.floor(x-r)),y0=Math.max(0,Math.floor(y-r)),x1=Math.min(wc.width,Math.ceil(x+r)),y1=Math.min(wc.height,Math.ceil(y+r)),w=x1-x0,h=y1-y0;if(w<=0||h<=0)return;
+const t=mk(w,h),g=t.getContext('2d');
+if(T==='mk'||T==='hc'||T==='hc2'){g.fillStyle=col;g.fillRect(0,0,w,h)}else if(T==='wh'){g.fillStyle='#fff';g.fillRect(0,0,w,h)}else if(T==='lt'||T==='ds'){g.fillStyle=fc;g.fillRect(0,0,w,h)}
+else if(T==='blem'){const off=(x+size*2<wc.width)?size*2:-size*2;const sx=Math.max(0,Math.min(wc.width-w,x0+off));g.drawImage(B,sx,y0,w,h,0,0,w,h)}
+else g.drawImage(B,x0,y0,w,h,0,0,w,h);
+g.globalCompositeOperation='destination-in';const gr=g.createRadialGradient(x-x0,y-y0,r*.25,x-x0,y-y0,r);const a=Math.min(1,(fo!=null?fo:(FAC[tool]||.3))*str/100*1.4);gr.addColorStop(0,'rgba(0,0,0,'+a+')');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,w,h);
+wx.globalCompositeOperation=T==='ds'?'saturation':T==='hc'?'color':T==='hc2'?'overlay':T==='mk'?'multiply':(T==='wh'||T==='lt')?'screen':'source-over';wx.globalAlpha=1;wx.drawImage(t,x0,y0);wx.globalCompositeOperation='source-over'}
+function blurData(r){const b=mk(wc.width,wc.height),g=b.getContext('2d');g.filter='blur('+r+'px)';g.drawImage(wc,0,0);return g.getImageData(0,0,wc.width,wc.height).data}
+function act(k){const w=wc.width,h=wc.height,s=str/100;hist.push(snap());if(hist.length>6)hist.shift();redo=[];
+const o=wx.getImageData(0,0,w,h),a=o.data,n=a.length;
+if(k==='auto'){const H=new Uint32Array(256);for(let i=0;i<n;i+=4)H[(a[i]*.299+a[i+1]*.587+a[i+2]*.114)|0]++;const tot=w*h;let c=0,lo=0,hi=255;for(let v=0;v<256;v++){c+=H[v];if(c>=tot*.01){lo=v;break}}c=0;for(let v=255;v>=0;v--){c+=H[v];if(c>=tot*.01){hi=v;break}}const gain=255/Math.max(40,hi-lo),sat=1+.25*s;
+for(let i=0;i<n;i+=4){const r=a[i],g=a[i+1],b=a[i+2];let R=r+((r-lo)*gain-r)*s*.85,G=g+((g-lo)*gain-g)*s*.85,B2=b+((b-lo)*gain-b)*s*.85;const m=(R+G+B2)/3;a[i]=m+(R-m)*sat;a[i+1]=m+(G-m)*sat;a[i+2]=m+(B2-m)*sat}}
+else if(k==='hd'){const b1=blurData(1.6),b2=blurData(Math.max(6,Math.max(w,h)/120));for(let i=0;i<n;i+=4)for(let j=0;j<3;j++){a[i+j]+=(a[i+j]-b1[i+j])*.9*s+(a[i+j]-b2[i+j])*.35*s}}
+else if(k==='smo'){const b=blurData(Math.max(2,Math.max(w,h)/260));for(let i=0;i<n;i+=4){const l1=a[i]*.299+a[i+1]*.587+a[i+2]*.114,l2=b[i]*.299+b[i+1]*.587+b[i+2]*.114,e=Math.min(1,Math.abs(l1-l2)/22),q=s*(1-e*.85);for(let j=0;j<3;j++)a[i+j]+=(b[i+j]-a[i+j])*q}}
+wx.putImageData(o,0,0);btns()}
+function save(){const url=wc.toDataURL('image/jpeg',.95),name='Rangrez_retouch_'+Date.now()+'.jpg';try{if(window.Android&&window.Android.saveImage){const r=window.Android.saveImage(url.split(',')[1],name,'image/jpeg');toast(r==='ok'?'Gallery mein save ho gayi':'Save nahi hui')}else{const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();toast('JPEG download ho gayi')}}catch(e){toast('Save nahi hui')}}
+function close(apply){if(apply&&wc.width){const r=snap();pushLayer({t:'i',img:r,x:cv.width/2,y:cv.height/2,w:cv.width,h:cv.height,r:0,a:1})}root.classList.remove('on');hist=[];redo=[];tool=null;last=null;B=null}
+window.rtOpen=function(){if(!src){toast('Pehle photo chunein');return}if(!root)build();
+sc=Math.min(1,1600/Math.max(cv.width,cv.height));wc.width=Math.max(1,Math.round(cv.width*sc));wc.height=Math.max(1,Math.round(cv.height*sc));wx=wc.getContext('2d',{willReadFrequently:false});wx.clearRect(0,0,wc.width,wc.height);wx.drawImage(cv,0,0,wc.width,wc.height);
+hist=[];redo=[];tool=null;root.querySelectorAll('#rttl button').forEach(z=>z.classList.remove('on'));root.querySelector('#rtop').classList.remove('on');btns();root.classList.add('on')};
+})();
 })();
 </script>
 </body>
